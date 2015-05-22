@@ -1,6 +1,6 @@
-Gulp for Joomla Components release
+Gulp for Joomla! Components release
 ============
-Gulp release builder for Standard Joomla Components, Modules, Plugins and Libraries.
+Gulp release builder for Standard Joomla! Components, Modules, Plugins and Libraries.
 
 ### Install
 #### To install all the dependencies,
@@ -16,6 +16,19 @@ sudo npm install --save-dev joomla-gulp-release
 ```
 
 ### Using Gulp build system
+
+#### Create `gulpfile.js` in your component root repository.
+
+You only need to add following line in file and then execute below commands.
+
+```
+var jrelease = require('joomla-gulp-release');
+```
+
+#### Configuration file `gulp-config.json`
+
+Copy and change default information given in sample config file.
+
 #### Following tasks and switches are available:
 
 Use this command to release component.
