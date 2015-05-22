@@ -1,4 +1,4 @@
-# joomla-gulp-release
+Gulp for Joomla Components release
 ============
 Gulp release builder for Standard Joomla Components, Modules, Plugins and Libraries.
 
