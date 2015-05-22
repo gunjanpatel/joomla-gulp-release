@@ -1,6 +1,6 @@
 {
   "name": "joomla-gulp-release",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Gulp release builder for Standard Joomla Components, Modules, Plugins and Libraries.",
   "main": "gulpfile.js",
   "dependencies": {
@@ -29,7 +29,7 @@
     "build",
     "zip"
   ],
-  "author": "[Gunjan Patel, redCOMPONENT.COM]",
+  "author": "[Gunjan Patel, redCOMPONENT-COM]",
   "license": "GNU GPLV2",
   "bugs": {
     "url": "https://github.com/redCOMPONENT-COM/joomla-gulp-release/issues"
