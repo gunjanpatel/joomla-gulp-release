@@ -1,0 +1,38 @@
+{
+  "name": "joomla-gulp-release",
+  "version": "1.0.0",
+  "description": "Gulp release builder for Standard Joomla Components, Modules, Plugins and Libraries.",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "gulp": "^3.8.11",
+    "fs": "0.0.2",
+    "gulp": "^3.8.11",
+    "gulp-util": "^3.0.4",
+    "gulp-zip": "^3.0.2",
+    "merge-stream": "^0.1.7",
+    "path": "^0.11.14",
+    "xml2js": "^0.4.8"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gunjanpatel/joomla-gulp-release.git"
+  },
+  "keywords": [
+    "joomla",
+    "component",
+    "module",
+    "libraries",
+    "plugin",
+    "release",
+    "build",
+    "zip"
+  ],
+  "author": "Gunjan Patel",
+  "license": "GNU GPLV2",
+  "bugs": {
+    "url": "https://github.com/gunjanpatel/joomla-gulp-release/issues"
+  }
+}
