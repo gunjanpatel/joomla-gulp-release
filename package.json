@@ -1,12 +1,11 @@
 {
   "name": "joomla-gulp-release",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Gulp release builder for Standard Joomla Components, Modules, Plugins and Libraries.",
   "main": "gulpfile.js",
   "dependencies": {
     "gulp": "^3.8.11",
     "fs": "0.0.2",
-    "gulp": "^3.8.11",
     "gulp-util": "^3.0.4",
     "gulp-zip": "^3.0.2",
     "merge-stream": "^0.1.7",
