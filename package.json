@@ -1,6 +1,6 @@
 {
   "name": "joomla-gulp-release",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Gulp release builder for Standard Joomla Components, Modules, Plugins and Libraries.",
   "main": "gulpfile.js",
   "dependencies": {

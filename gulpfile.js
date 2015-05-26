@@ -24,44 +24,90 @@ manifest = {},
 // Init component version - Set default as config version
 component = {"version":'',"compatibility":'',"pluginVersion":''};
 
-// Reading manifest file
-readManifest('./' + config.name + '.xml');
-
-// Update version from manifest file
-component.version = manifest.extension.version[0];
-
-function getFolders(dir) {
+component.getFolders = function (dir) {
 	return fs.readdirSync(dir)
 		.filter(function(file) {
 			return fs.statSync(path.join(dir, file)).isDirectory();
 	});
-}
+};
 
-function showHelp(){
+component.showHelp = function (){
 	gutil.log(
 		gutil.colors.white.bold.bgMagenta(
 			'\n\n\nFollowing tasks and switches are available:\n\n\t 1. gulp release:component \n\t\t Use this command to release component. Version and other information can be set in gulp-config.json file. \n\n\t 2. gulp release:extensions \n\t\t This command is to release the extensions.\n\t\t This command will read the base directory and create zip files for each of the folder. \n\t\t === Switches === \n\t --folder {source direcory}  Default: "./plugins" \n\t --suffix {text of suffix}   Default: "plg_"\n\n\t Example Usage: \n\t\t gulp release:extensions --folder ./modules --suffix ext_ \n\n\n'
 		)
 	);
-}
+};
 
-function readManifest(xml){
+component.readManifest = function (xml){
 	return parseString(fs.readFileSync(xml, 'ascii'), function (err, result) {
 		manifest = result;
 	});
-}
+};
 
-// Creating zip files for  Extensions
-gulp.task('release:extensions', function() {
+// Reading manifest file
+component.readManifest('./' + config.name + '.xml');
 
-	// Source directory for read and prepare for zip
-	var srcFolder = gutil.env.folder || './plugins',
+// Update version from manifest file
+component.version = manifest.extension.version[0];
 
-	// Read all the folders in given source directory
-	folders = getFolders(srcFolder),
+/**
+ * Create zip file of the extensions
+ *
+ * @param   {string}  srcFolder  Source folder path
+ * @param   {string}  folder     Path to the folder directory
+ * @param   {string}  plugin     Path of the final plugin folder
+ *
+ * @return  {object}  Gulp piped task
+ */
+component.zipper = function (srcFolder, folder, plugin){
 
 	// Extension package name suffix
-	extSuffix = gutil.env.suffix || '';
+	var extSuffix  = gutil.env.suffix || '',
+
+	pluginBasePath = path.join(srcFolder, folder, plugin),
+	componentName  = config.name;
+
+	// Reading manifest file
+	component.readManifest(path.join(pluginBasePath, plugin + '.xml'));
+
+	// Update version from manifest file
+	component.pluginVersion = manifest.extension.version[0];
+	component.compatibility = (manifest.extension.componentName) ? '_for_' + config.name + '_' + manifest.extension.componentName[0] : '';
+
+	// Strip group name for modules
+	var extGroupName = ('site' == folder || 'admin' == folder || '' == folder) ? '' : folder + '_',
+	destFolderName = config.name + '-' + component.version + '-' + srcFolder.split(path.sep)[1];
+
+	// Print current extension name
+	gutil.log(gutil.colors.red.bold.italic('-' + plugin + ' v' + component.pluginVersion));
+
+	return gulp.src(
+			path.join(pluginBasePath, '**')
+		)
+		.pipe(
+			zip(
+				extSuffix + extGroupName + plugin + '_' + component.pluginVersion + component.compatibility + '.zip'
+			)
+		)
+		.pipe(
+			gulp.dest(
+				path.join(config.releasesDir, destFolderName, folder)
+			)
+		);
+};
+
+/**
+ * Create zip of the exensions
+ *
+ * @param   {string}  srcFolder  Source folder to read
+ *
+ * @return  {array}   Return the array of gulp tasks
+ */
+component.extensions = function (srcFolder){
+
+	// Read all the folders in given source directory
+	var folders = component.getFolders(srcFolder);
 
 	// Display log
 	gutil.log(gutil.colors.white.bgBlue(folders.length) + gutil.colors.blue.bold(' extensions are ready for release'));
@@ -71,50 +117,84 @@ gulp.task('release:extensions', function() {
 
 	folders.map(function(folder) {
 
-		var plugins = getFolders(path.join(srcFolder, folder));
+		var plugins = component.getFolders(path.join(srcFolder, folder));
 
 		// Display name of the folder
 		gutil.log(gutil.colors.blue.bold.italic(folder + ' (' + plugins.length + ')'));
 
 		tasks = plugins.map(function(plugin) {
 
-			var pluginBasePath = path.join(srcFolder, folder, plugin),
-			componentName = config.name;
-
-			// Reading manifest file
-			readManifest(path.join(pluginBasePath, plugin + '.xml'));
-
-			// Update version from manifest file
-			component.pluginVersion = manifest.extension.version[0];
-			component.compatibility = (manifest.extension.componentName) ? '_for_' + config.name + '_' + manifest.extension.componentName[0] : '';
-
-			// Strip group name for modules
-			var extGroupName = ('site' == folder) ? '' : folder + '_',
-			destFolderName = config.name + '-' + component.version + '-' + srcFolder.split(path.sep)[1];
-
-			// Print current extension name
-			gutil.log(gutil.colors.red.bold.italic('-' + plugin + ' v' + component.pluginVersion));
-
-			return gulp.src(
-					path.join(pluginBasePath, '**')
-				)
-				.pipe(
-					zip(
-						extSuffix + extGroupName + plugin + '_' + component.pluginVersion + component.compatibility + '.zip'
-					)
-				)
-				.pipe(
-					gulp.dest(
-						path.join(config.releasesDir, destFolderName, folder)
-					)
-				);
+			return component.zipper(srcFolder, folder, plugin);
 		});
 	});
 
-	return merge(tasks);
+	return tasks;
+};
+
+/**
+ * Gulp task to release an extensions of Joomla.
+ *
+ *
+ * @return  {object}     Gulp task
+ */
+gulp.task('release:extensions', function() {
+
+	// Source directory for read and prepare for zip
+	var srcFolder = gutil.env.folder || './plugins';
+
+	return merge(
+		component.extensions(srcFolder)
+	);
 });
 
-// Creating zip files for Component
+/**
+ * Release Joomla! Plugins
+ *
+ * @return  {Object}     Gulp Task
+ */
+gulp.task('release:plugins', function() {
+	return merge(
+		component.extensions('./plugins')
+	);
+});
+
+/**
+ * Release Joomla! Modules
+ *
+ * @return  {Object}     Gulp task
+ */
+gulp.task('release:modules', function() {
+	return merge(
+		component.extensions('./modules')
+	);
+});
+
+/**
+ * Release Joomla! Modules
+ *
+ * @return  {Object}     Gulp task
+ */
+gulp.task('release:packages', function() {
+
+	// Source directory for read and prepare for zip
+	var srcFolder = gutil.env.folder || './packages',
+
+	packages = component.getFolders(path.join(srcFolder));
+
+	// Display name of the folder
+	gutil.log(gutil.colors.white.bgBlue(packages.length) + gutil.colors.blue.bold(' packages are ready for release'));
+
+	var tasks = packages.map(function(plugin) {
+
+		return component.zipper(srcFolder, '', plugin);
+	});
+});
+
+/**
+ * Create a release zip file for joomla! component
+ *
+ * @return  {object}     Gulp Task
+ */
 gulp.task('release:component', function() {
 
 	if (!config.packageFiles || (config.packageFiles && config.packageFiles.length <= 0))
@@ -138,16 +218,38 @@ gulp.task('release:component', function() {
 	gutil.log(gutil.colors.white.bgGreen('Component packages are ready at ' + config.releasesDir));
 });
 
+/**
+ * Release full Joomla! package
+ *
+ * @todo  Still not complete needs to create zip manually
+ *
+ * @return  {object}     Gulp tasks
+ */
 gulp.task(
 	'release',
 	[
 		'release:component',
-		'release:extensions'
+		'release:modules',
+		'release:plugins',
+		'release:packages'
 	],
 	function() {
-
 });
 
+/**
+ * Gulp default task to show help
+ *
+ * @return  {text}    Display help text in console.
+ */
 gulp.task('default', function() {
-	showHelp();
+	component.showHelp();
 });
+
+/**
+ * Export component variable to use by plugin
+ *
+ * @type  {Object}
+ */
+module.exports = {
+	jGulpRelease: component
+};
