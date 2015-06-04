@@ -1,6 +1,8 @@
-Gulp for Joomla! Components release
+Gulp for Joomla! Components release [![npm version](https://badge.fury.io/js/joomla-gulp-release.svg)](http://badge.fury.io/js/joomla-gulp-release)
 ============
 Gulp release builder for Standard Joomla! Components, Modules, Plugins and Libraries.
+
+
 
 ### Install
 #### To install all the dependencies,
