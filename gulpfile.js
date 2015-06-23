@@ -209,7 +209,7 @@ gulp.task('release:component', function() {
 	}
 
 	// Start up log
-	gutil.log(gutil.colors.white.bgGreen('Preparing release for version' + component.version));
+	gutil.log(gutil.colors.white.bgGreen('Preparing release for version ' + component.version));
 
 	gulp.src(config.packageFiles, {base: '.'})
 		.pipe(zip(config.name + '_v' + component.version + '_' + config.joomlaVersion + '.zip'))
